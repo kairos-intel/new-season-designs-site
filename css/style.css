@@ -65,7 +65,9 @@ img.no-ph{background:none;min-height:0}
 .btn-dark{background:var(--ink);color:#fff}
 .btn-outline{background:rgba(255,255,255,.55);border:1px solid rgba(8,11,15,.5);color:var(--ink);backdrop-filter:blur(4px)}
 .btn-sm{padding:11px 18px}
-.hero-house{position:absolute;left:50%;top:76vh;transform:translateX(-50%);width:min(1500px,96vw);z-index:2;will-change:transform}
+/* --house-top is measured in JS so the roofline always clears the CTAs; 76vh is
+   the reference resting position and the floor it never rises above */
+.hero-house{position:absolute;left:50%;top:var(--house-top,76vh);transform:translateX(-50%);width:min(1500px,96vw);z-index:2;will-change:transform}
 .hero-house img{width:100%;height:auto}
 
 /* ============ PAGE (scrolls over hero) ============ */

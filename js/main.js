@@ -35,6 +35,32 @@
   else revealCopy();
   setTimeout(() => { if (!copyEntered) { copy.style.opacity = '1'; copyEntered = true; } }, 2500);
 
+  /* ---------- keep the roofline below the copy ----------
+     the house rests at 76vh, which collides with the CTAs whenever the headline
+     wraps to an extra line (narrow viewports, long headlines, a fallback font
+     with wider metrics). measure the copy block and push the house down when it
+     would overlap; 76vh stays the floor so the reference framing is unchanged
+     whenever there is already room. measured untransformed: the parallax
+     translateY and the load-in scale would otherwise skew the reading. */
+  const HOUSE_REST_VH = 0.76;
+  const HOUSE_GAP = 24;
+  const placeHouse = () => {
+    const prevCopy = copy.style.transform;
+    const prevHouse = house.style.transform;
+    copy.style.transform = 'translateX(-50%)';
+    house.style.transform = 'translateX(-50%)';
+    const copyBottom = copy.getBoundingClientRect().bottom + window.scrollY;
+    copy.style.transform = prevCopy;
+    house.style.transform = prevHouse;
+    const top = Math.max(innerHeight * HOUSE_REST_VH, copyBottom + HOUSE_GAP);
+    house.style.setProperty('--house-top', `${Math.round(top)}px`);
+  };
+  placeHouse();
+  addEventListener('resize', placeHouse);
+  addEventListener('orientationchange', placeHouse);
+  /* fonts change the headline's wrap point, so re-measure once they land */
+  if (document.fonts?.ready) document.fonts.ready.then(placeHouse);
+
   /* ---------- sticky video zoom + marquee ----------
      measured on reference: card scales 1 -> cover-viewport*1.09 linearly with
      section progress; ticker drifts left at a constant 80px/s behind the card;
