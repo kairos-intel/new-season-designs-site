@@ -40,20 +40,26 @@
      wraps to an extra line (narrow viewports, long headlines, a fallback font
      with wider metrics). measure the copy block and push the house down when it
      would overlap; 76vh stays the floor so the reference framing is unchanged
-     whenever there is already room. measured untransformed: the parallax
-     translateY and the load-in scale would otherwise skew the reading. */
+     whenever there is already room.
+
+     also measures houseLift: how far the house may rise before the bottom edge
+     of the cut-out clears the fold and leaves bare sky under it. the <=600px
+     rule pins the house to bottom:0, so on a phone that budget is 0 and the
+     house holds still instead of dragging its cropped base into view. on
+     desktop the house hangs ~770px below the fold, so the clamp never binds
+     before the page takes over at --hero-len.
+
+     offsetTop/offsetHeight are read instead of getBoundingClientRect so the
+     parallax translate and the load-in scale/blur cannot skew the reading;
+     both are relative to .hero, which is fixed, so they need no scroll term. */
   const HOUSE_REST_VH = 0.76;
   const HOUSE_GAP = 24;
+  let houseLift = 0;
   const placeHouse = () => {
-    const prevCopy = copy.style.transform;
-    const prevHouse = house.style.transform;
-    copy.style.transform = 'translateX(-50%)';
-    house.style.transform = 'translateX(-50%)';
-    const copyBottom = copy.getBoundingClientRect().bottom + window.scrollY;
-    copy.style.transform = prevCopy;
-    house.style.transform = prevHouse;
+    const copyBottom = copy.offsetTop + copy.offsetHeight;
     const top = Math.max(innerHeight * HOUSE_REST_VH, copyBottom + HOUSE_GAP);
     house.style.setProperty('--house-top', `${Math.round(top)}px`);
+    houseLift = Math.max(0, house.offsetTop + house.offsetHeight - innerHeight);
   };
   placeHouse();
   addEventListener('resize', placeHouse);
@@ -101,7 +107,8 @@
 
     // hero layers (only while hero zone is on screen)
     if (target < 1650) {
-      house.style.transform = `translateX(-50%) translateY(${-(s * 0.5)}px)`;
+      // -0.5x, but never past the point where the cut-out's base clears the fold
+      house.style.transform = `translateX(-50%) translateY(${-Math.min(s * 0.5, houseLift)}px)`;
       // copy: +0.1x drift down, scale 1->0.885 and fade 1->0.767 over first 600px (ease-out) — measured on reference
       const pr = Math.min(s / 600, 1);
       const p = 1 - (1 - pr) * (1 - pr);

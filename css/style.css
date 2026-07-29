@@ -246,6 +246,15 @@ img.no-ph{background:none;min-height:0}
   .hero-ctas{flex-direction:column;align-items:center;gap:12px;margin-top:22px}
   .hero-ctas .btn{width:min(320px,86vw);justify-content:center;padding:16px 24px}
   .hero-house{top:auto;bottom:0}
+  /* the cloud geometry above is in vw off a 1440x900 reference, so on a phone the
+     bands shrink vertically and bottom out around 0.7x viewport height — well
+     above the house waterline they sit behind on desktop, leaving the cut-out
+     floating on bare gradient. scale them up and drop the main band so it still
+     meets the base. */
+  .smoke-1{width:116vw;height:63vw;left:-48vw;top:9vh}
+  .smoke-2{width:196vw;height:106vw;left:-58vw;top:48vh}
+  .smoke-3{width:146vw;height:79vw;left:16vw;top:22vh}
+  .smoke-4{width:118vw;height:64vw;left:34vw;top:-3vh}
   .section{padding:72px 0}
   .ba-afteronly{grid-template-columns:1fr 1fr}
   .steps-grid{grid-template-columns:1fr}
