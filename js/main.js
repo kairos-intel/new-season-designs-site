@@ -42,7 +42,7 @@
   const stickySection = document.querySelector('.sticky-video-section');
   const videoCard = document.getElementById('video-card');
   const tickerTrack = document.getElementById('ticker-track');
-  const TICKER_PHRASES = ["Owner's Rep", 'One Number', 'Done Right'];
+  const TICKER_PHRASES = ["Owner's Rep", 'One Point of Contact', 'Clear Approvals'];
   const TICKER_SPEED = 80; // px/s
   const TICKER_GAP = 30;   // must match css gap
   let tickerW = 0, tickerX = 0, endScale = 4.1, lastT = 0;
