@@ -15,7 +15,11 @@
 html{scroll-behavior:auto;overflow-x:clip}
 body{font-family:'Switzer',sans-serif;color:var(--ink);background:#fff;overflow-x:clip}
 .btn:focus-visible,.nav-cta:focus-visible,.acc-q:focus-visible,.ba-slider:focus-visible{outline:3px solid #7db8d8;outline-offset:3px}
-img{max-width:100%;display:block}
+/* height:auto keeps the width/height attributes doing their job — reserving the
+   right aspect ratio against layout shift — without their pixel height becoming
+   a hard size once CSS constrains the width. selectors that set an explicit
+   height (object-fit tiles, logos, avatars) are more specific and still win. */
+img{max-width:100%;display:block;height:auto}
 a{text-decoration:none;color:inherit}
 h1,h2,h3{font-weight:600;letter-spacing:-.02em}
 .container{width:min(1240px,92vw);margin:0 auto}
@@ -160,7 +164,10 @@ img.no-ph{background:none;min-height:0}
 .watermark{position:absolute;left:0;right:0;bottom:6%;font-size:clamp(90px,16vw,260px);font-weight:700;letter-spacing:.02em;color:rgba(255,255,255,.18);z-index:2;pointer-events:none;line-height:1}
 .footer{background:transparent;position:relative;z-index:3;margin:-140px 16px 0;padding:180px 60px 30px;background:linear-gradient(180deg,rgba(10,14,17,0),rgba(10,14,17,.92) 30%,#0a0e11);border-radius:0 0 28px 28px;color:#e7ecef}
 .footer-main{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:60px;padding-bottom:50px;border-bottom:1px solid rgba(255,255,255,.14)}
-.footer-logo{height:64px;margin-bottom:18px;filter:brightness(1.4)}
+/* nsd-logo.png is a 944x2048 canvas with the mark centred in deep transparent
+   margins, so height alone collapses this to a 30px-wide sliver. box it to the
+   nav's 97x74 ratio and cover-crop, which lands on the same framing as the nav. */
+.footer-logo{width:84px;height:64px;object-fit:cover;margin-bottom:18px;filter:brightness(1.4)}
 .footer-left p{font-family:'Inter',sans-serif;font-size:14px;color:#aeb9bf;max-width:280px}
 .socials{display:flex;gap:12px;margin-top:22px}
 .socials a{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:12px;font-weight:600}
