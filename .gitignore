@@ -2,3 +2,4 @@
 handoff/
 serve-compare.sh
 .DS_Store
+.env*
