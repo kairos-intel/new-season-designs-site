@@ -74,7 +74,7 @@
   const stickySection = document.querySelector('.sticky-video-section');
   const videoCard = document.getElementById('video-card');
   const tickerTrack = document.getElementById('ticker-track');
-  const TICKER_PHRASES = ["Owner's Rep", 'One Point of Contact', 'Clear Approvals'];
+  const TICKER_PHRASES = ['Interior Design', 'Premium Renovation', 'One Accountable Team'];
   const TICKER_SPEED = 80; // px/s
   const TICKER_GAP = 30;   // must match css gap
   let tickerW = 0, tickerX = 0, endScale = 4.1, lastT = 0;
@@ -155,6 +155,15 @@
 
   requestAnimationFrame(frame);
 
+  /* ---------- nav background once content scrolls under it ----------
+     the nav is transparent over the hero by design; past that it needs a solid
+     backdrop or its text becomes illegible over whatever photo happens to be
+     scrolled to the top of the viewport. */
+  const navEl = document.querySelector('.nav');
+  const toggleNavBg = () => navEl.classList.toggle('scrolled', window.scrollY > 40);
+  addEventListener('scroll', toggleNavBg, { passive: true });
+  toggleNavBg();
+
   /* ---------- reveal on scroll ---------- */
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
@@ -215,15 +224,39 @@
   /* ---------- FAQ accordion (one open) ---------- */
   const items = [...document.querySelectorAll('.acc-item')];
   const setH = it => {
+    const q = it.querySelector('.acc-q');
     const a = it.querySelector('.acc-a');
-    a.style.maxHeight = it.classList.contains('open') ? a.scrollHeight + 'px' : '0px';
+    const open = it.classList.contains('open');
+    a.style.maxHeight = open ? a.scrollHeight + 'px' : '0px';
+    q.setAttribute('aria-expanded', open);
   };
-  items.forEach(it => {
+  items.forEach((it, i) => {
+    const q = it.querySelector('.acc-q');
+    const a = it.querySelector('.acc-a');
+    a.id = a.id || `faq-answer-${i}`;
+    q.setAttribute('aria-controls', a.id);
     setH(it);
-    it.querySelector('.acc-q').addEventListener('click', () => {
+    q.addEventListener('click', () => {
       items.forEach(o => { o.classList.toggle('open', o === it && !it.classList.contains('open')); setH(o); });
     });
   });
+
+  /* ---------- mobile menu ---------- */
+  const navToggle = document.getElementById('nav-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  if (navToggle && mobileMenu) {
+    const closeMenu = () => {
+      mobileMenu.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+      navToggle.setAttribute('aria-label', 'Open menu');
+    };
+    navToggle.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', String(open));
+      navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+  }
 
   /* ---------- year ---------- */
   document.getElementById('year').textContent = new Date().getFullYear();
