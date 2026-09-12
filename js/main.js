@@ -1,4 +1,4 @@
-/* New Season Design — scroll engine
+/* New Season Designs — scroll engine
    Measured behavior being replicated:
    - hero pinned; house -0.5x, copy +0.1x, sky/smoke 0x, page 1x overlay
    - spring-smoothed scroll value so layers trail the wheel slightly */
@@ -67,41 +67,8 @@
   /* fonts change the headline's wrap point, so re-measure once they land */
   if (document.fonts?.ready) document.fonts.ready.then(placeHouse);
 
-  /* ---------- sticky video zoom + marquee ----------
-     measured on reference: card scales 1 -> cover-viewport*1.09 linearly with
-     section progress; ticker drifts left at a constant 80px/s behind the card;
-     video plays continuously (not scroll-scrubbed) */
-  const stickySection = document.querySelector('.sticky-video-section');
-  const videoCard = document.getElementById('video-card');
-  const tickerTrack = document.getElementById('ticker-track');
-  const TICKER_PHRASES = ['Interior Design', 'Premium Renovation', 'One Accountable Team'];
-  const TICKER_SPEED = 80; // px/s
-  const TICKER_GAP = 30;   // must match css gap
-  let tickerW = 0, tickerX = 0, endScale = 4.1, lastT = 0;
-
-  const addTickerSet = () => TICKER_PHRASES.forEach(t => {
-    const s = document.createElement('span'); s.textContent = t;
-    const d = document.createElement('i'); d.className = 'ticker-dot';
-    tickerTrack.append(s, d);
-  });
-  function buildTicker() {
-    tickerTrack.innerHTML = '';
-    addTickerSet();
-    tickerW = tickerTrack.scrollWidth + TICKER_GAP; // one set incl. trailing gap
-    const sets = Math.ceil((innerWidth + tickerW) / tickerW);
-    for (let i = 1; i <= sets; i++) addTickerSet();
-  }
-  function calcEndScale() {
-    endScale = Math.max(innerWidth / videoCard.offsetWidth, innerHeight / videoCard.offsetHeight) * 1.09;
-  }
-  buildTicker(); calcEndScale();
-  addEventListener('load', () => { buildTicker(); calcEndScale(); });
-  let rsT; addEventListener('resize', () => { clearTimeout(rsT); rsT = setTimeout(() => { buildTicker(); calcEndScale(); }, 150); });
-
   /* ---------- main loop ---------- */
   function frame(now) {
-    const dt = lastT ? Math.min(0.05, (now - lastT) / 1000) : 0;
-    lastT = now;
     smooth = lerp(smooth, target, 0.12);
     const s = smooth;
 
@@ -119,19 +86,6 @@
       hero.style.visibility = 'hidden';
     }
     // sky + clouds stay viewport-fixed (measured on reference: only house/copy/page move)
-
-    // sticky video: card scale linear with progress 0..1 across its 250vh
-    const r = stickySection.getBoundingClientRect();
-    if (r.bottom > 0 && r.top < innerHeight) {
-      const total = r.height - innerHeight;
-      const p = Math.min(1, Math.max(0, -r.top / total));
-      videoCard.style.transform = `scale(${1 + (endScale - 1) * p})`;
-      if (tickerW) {
-        tickerX -= TICKER_SPEED * dt;
-        if (tickerX <= -tickerW) tickerX += tickerW;
-        tickerTrack.style.transform = `translateX(${tickerX}px)`;
-      }
-    }
 
     // manifesto word reveal: scrub across viewport travel
     if (words.length) {
@@ -188,18 +142,6 @@
     });
   }, { threshold: 0.6 });
   document.querySelectorAll('.stat-num').forEach(el => cio.observe(el));
-
-  /* ---------- lazy-start the walkthrough video only when it nears view ---------- */
-  const vid = document.getElementById('showcase-video');
-  if (vid) {
-    const vio = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) { vid.preload = 'auto'; vid.play?.().catch(() => {}); }
-        else { vid.pause?.(); }
-      });
-    }, { rootMargin: '100% 0px' });
-    vio.observe(vid);
-  }
 
   /* ---------- before/after sliders (drag / tap, mouse + touch) ---------- */
   document.querySelectorAll('[data-ba]').forEach(slider => {
